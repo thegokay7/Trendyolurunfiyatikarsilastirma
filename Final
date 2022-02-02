@@ -1,0 +1,219 @@
+#Bu program trendyol sitesindeki ürün linklerini ekleyip sonra bakıldığında fiyat farkı olup olmadığını kontrol etmek içindir.
+#Test etmek için ürün ekleyip ardından trend.db dosyasından ürünün fiyatını değiştirebilirsiniz.
+from PyQt5 import QtCore, QtWidgets
+import sqlite3
+import requests
+from bs4 import BeautifulSoup 
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import Qt
+
+
+conn = sqlite3.connect('liste.db')
+
+c = conn.cursor()
+
+
+c.execute("""CREATE TABLE if not exists todo_list(
+    "list_item"	TEXT)
+    """)
+
+
+conn.commit()
+
+
+conn.close()
+
+hehe = sqlite3.connect('trend.db')
+
+h = hehe.cursor()
+
+
+h.execute("""CREATE TABLE if not exists patates(
+    "list_item"	TEXT,
+	"Fiyat"	INTEGER,
+	"url"	TEXT)
+    """)
+
+
+hehe.commit()
+
+
+hehe.close()
+
+
+
+class Pncr1(object):
+    def habura(self, kontrolsyf):
+        kontrolsyf.setObjectName("Yapılacaklar_listesi")
+        kontrolsyf.setFixedWidth(510)
+        kontrolsyf.setFixedHeight(464)
+        
+        self.centralwidget = QtWidgets.QWidget(kontrolsyf)
+        self.centralwidget.setObjectName("centralwidget")
+        self.ekleme = QtWidgets.QPushButton(self.centralwidget, clicked= lambda: self.ekle())
+        self.ekleme.setGeometry(QtCore.QRect(20, 280, 111, 31))
+        self.ekleme.setObjectName("ekleme")
+        self.teksil = QtWidgets.QPushButton(self.centralwidget, clicked= lambda: self.kaldır())
+        self.teksil.setGeometry(QtCore.QRect(140, 280, 111, 31))
+        self.teksil.setObjectName("teksil")
+        self.toplusil = QtWidgets.QPushButton(self.centralwidget, clicked= lambda: self.sil())
+        self.toplusil.setGeometry(QtCore.QRect(260, 280, 111, 31))
+        self.toplusil.setObjectName("toplusil")
+        self.ekleme_edit = QtWidgets.QLineEdit(self.centralwidget)
+        self.ekleme_edit.setGeometry(QtCore.QRect(140, 10, 350, 20))
+        self.ekleme_edit.setObjectName("ekleme_edit")
+        self.liste = QtWidgets.QListWidget(self.centralwidget)
+        self.liste.setGeometry(QtCore.QRect(20, 40, 471, 231))
+        self.liste.setObjectName("liste")
+        self.savedb = QtWidgets.QPushButton(self.centralwidget, clicked= lambda: self.kayıt())
+        self.savedb.setGeometry(QtCore.QRect(380, 280, 111, 31))
+        self.savedb.setObjectName("savedb")
+        self.kontrol = QtWidgets.QPushButton(self.centralwidget, clicked= lambda: self.trendy())
+        self.kontrol.setGeometry(QtCore.QRect(20, 400, 471, 23))
+        self.kontrol.setObjectName("kontrol")
+        kontrolsyf.setCentralWidget(self.centralwidget)
+        self.menu = QtWidgets.QMenuBar(kontrolsyf)
+        self.menu.setGeometry(QtCore.QRect(0, 0, 405, 20))
+        self.patis = QLabel("",self.centralwidget)
+        self.patis.setText("")
+        self.patis.setGeometry(240, 330, 221, 61)
+        self.patis2 = QLabel("",self.centralwidget)
+        self.patis2.setText("<h2> Fiyat değişimi:</h2>")
+        self.patis2.setGeometry(20, 330, 211, 61)
+        self.patis3 = QLabel("",self.centralwidget)
+        self.patis3.setText("Trendyol linki yapıştırınız:")
+        self.patis3.setGeometry(15, 10, 120, 16)
+        kontrolsyf.setMenuBar(self.menu)
+        self.statusbar = QtWidgets.QStatusBar(kontrolsyf)
+        self.statusbar.setObjectName("statusbar")
+        kontrolsyf.setStatusBar(self.statusbar)
+        self.label = QLabel("",self.centralwidget)
+        kontrolsyf.setStyleSheet("background-color: gray;")
+        kontrolsyf.setWindowFlag(Qt.FramelessWindowHint)
+        self.retranslateUi(kontrolsyf)
+        QtCore.QMetaObject.connectSlotsByName(kontrolsyf)
+        self.k()
+          
+        
+        
+        
+    def k(self):
+        
+        conn = sqlite3.connect('liste.db')
+        c = conn.cursor()
+        c.execute("SELECT * FROM todo_list")
+        records = c.fetchall()
+        conn.commit()
+        conn.close()
+
+        
+        for record in records:
+            self.liste.addItem(str(record[0]))
+    
+   
+    def ekle(self):
+        itemurl = self.ekleme_edit.text()
+        from wsgiref import headers
+        headers={"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36"
+        }
+        page = requests.get(url= itemurl , headers=headers)
+
+        sayfa = BeautifulSoup(page.content,'html.parser')
+        ad = sayfa.find("h1", class_="pr-new-br").getText()
+        productTitle = ad.replace(' ', '_')
+        price = sayfa.find("span", class_="prc-slg").getText()
+        convertedPrice = float(price.replace(",",".").replace("TL",""))
+        
+        self.liste.addItem(productTitle)
+        self.ekleme_edit.setText("")
+
+        hehe = sqlite3.connect('trend.db')
+        h = hehe.cursor()
+        h.execute("INSERT INTO patates VALUES (:item,:price,:url)",
+                {
+                    "item": productTitle, 'price': convertedPrice, "url" : itemurl
+                })
+        hehe.commit()
+        hehe.close()
+        
+    
+    def kaldır(self):
+        
+        clicked = self.liste.currentRow()
+        self.liste.takeItem(clicked)
+
+    
+    def sil(self):
+        self.liste.clear()
+    
+    def kayıt(self):
+        conn = sqlite3.connect('liste.db')
+        c = conn.cursor()
+        c.execute('DELETE FROM todo_list;',)
+        items = []
+        for index in range(self.liste.count()):
+            items.append(self.liste.item(index))
+        for item in items:
+            c.execute("INSERT INTO todo_list VALUES (:item)",
+                {
+                    'item': item.text()
+                })
+          
+        conn.commit()
+        conn.close()   
+    def retranslateUi(self, kontrolsyf):
+        ceviri = QtCore.QCoreApplication.translate
+        kontrolsyf.setWindowTitle(ceviri("Ana Ekran", "Trendyol Fiyat Kontrol"))
+        self.ekleme.setText(ceviri("Ana Ekran", "Ekle"))
+        self.teksil.setText(ceviri("Ana Ekran", "Çıkar"))
+        self.toplusil.setText(ceviri("Ana Ekran", "Temizle"))
+        self.savedb.setText(ceviri("Ama Ekram", "Kaydet"))
+        self.kontrol.setText(ceviri("Ana Ekran","Fiyat Kontrol Et"))
+
+    def trendy(self):
+        cur = self.liste.currentItem()
+        item = cur.text()
+
+        hehe = sqlite3.connect('trend.db')
+        h = hehe.cursor()
+        h.execute("SELECT * FROM patates WHERE list_item IS :item",
+                {
+                    'item': item
+                })
+        hehe.commit()               
+        for row in  h.fetchall():
+            trendurl = row[2]
+            trendfiyat = row[1]
+
+        from wsgiref import headers
+        headers={"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36"
+        }
+        page = requests.get(url= trendurl , headers=headers)
+        sayfa = BeautifulSoup(page.content,'html.parser')
+        price2 = sayfa.find("span", class_="prc-slg").getText()
+        convertedPrice2 = float(price2.replace(",",".").replace("TL",""))
+    
+        trendfiyat = trendfiyat - convertedPrice2
+        
+        
+        trendfiyatS = str(trendfiyat)
+        deis = QtCore.QCoreApplication.translate
+        self.patis.setText(deis("Ana ekran",f"<h2> {trendfiyatS} TL </h2>"))
+
+
+        h.close()
+        hehe.close()  
+        
+       
+    
+       
+      
+
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    kontrolsyf = QtWidgets.QMainWindow()
+    ui = Pncr1()
+    ui.habura(kontrolsyf)
+    kontrolsyf.show()
+    sys.exit(app.exec_())
