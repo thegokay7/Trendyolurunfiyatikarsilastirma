@@ -10,3 +10,9 @@ Gökay Deniz 032180002
 
 -Kullandığım Kütüphaneler: PyQt5, SQLite3 ve BeautifulSoup
 
+-Bu program üzerine daha çok düşücem yani daha da geliştiricem aklımda birkaç bir şey daha var ilerleyen zamanlarda ekleyeceğim inşallah.
+
+-Bu programı Visual Studio Code üzerinde yazdım 
+
+-Diğer projemde de belirttim iki farklı proje ortaya çıktı ikisini de kaide alırsanız sevinirim, teşekkür ederim.
+
