@@ -16,3 +16,4 @@ Gökay Deniz 032180002
 
 -Diğer projemde de belirttim iki farklı proje ortaya çıktı ikisini de kaide alırsanız sevinirim, teşekkür ederim.
 
+-Kaynak olarak https://www.youtube.com/watch?v=xZwS1QcMJzg ilk başta bu videodan esinlendim sonrasında farklılaştırdım tabii.
