@@ -14,6 +14,10 @@ Gökay Deniz 032180002
 
 -Bu programı Visual Studio Code üzerinde yazdım 
 
--Diğer projemde de belirttim iki farklı proje ortaya çıktı ikisini de kaide alırsanız sevinirim, teşekkür ederim.
-
 -Kaynak olarak https://www.youtube.com/watch?v=xZwS1QcMJzg ilk başta bu videodan esinlendim sonrasında farklılaştırdım tabii.
+
+-Ayrıca Kütüphanelerin kendi siteleri, stackoverflow, github buralardan faydalandım.
+
+-Bir de şu video var https://youtu.be/EFKI9bu4lrY
+
+-Diğer projemde de belirttim iki farklı proje ortaya çıktı ikisini de kaide alırsanız sevinirim, teşekkür ederim.
